@@ -34,6 +34,18 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Copy db folder to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.AWS_HOST }}
+          username: ${{ secrets.AWS_USERNAME }}
+          key: ${{ secrets.AWS_PRIVATE_KEY }}
+          source: "web-dinamis/db/"
+          target: "/home/${{ secrets.AWS_USERNAME }}/"
+
       - name: Executing remote SSH commands to deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -41,10 +53,8 @@ jobs:
           username: ${{ secrets.AWS_USERNAME }}
           key: ${{ secrets.AWS_PRIVATE_KEY }}
           script: |
-            # Pindah ke home direktori AWS
             cd /home/${{ secrets.AWS_USERNAME }}
 
-            # Trik jitu: Hapus file lama dan tulis ulang docker-compose.yml langsung di server
             rm -f docker-compose.yml
 
             cat << 'EOF' > docker-compose.yml
@@ -56,6 +66,7 @@ jobs:
                 container_name: web-statis-app
                 ports:
                   - "80:80"
+                restart: always
                 networks:
                   - uas-network
 
@@ -64,10 +75,14 @@ jobs:
                 container_name: web-dinamis-app
                 ports:
                   - "3000:80"
-                volumes:
-                  - ./web-dinamis:/var/www/html
+                environment:
+                  - DATABASE_HOST=db-server
+                  - DATABASE_USER=uas_user
+                  - DATABASE_PASSWORD=uas_password
+                  - DATABASE_NAME=uas_db
                 depends_on:
                   - db-server
+                restart: always
                 networks:
                   - uas-network
 
@@ -80,7 +95,9 @@ jobs:
                   MYSQL_USER: uas_user
                   MYSQL_PASSWORD: uas_password
                 volumes:
+                  - ./web-dinamis/db:/docker-entrypoint-initdb.d
                   - db_data:/var/lib/mysql
+                restart: always
                 networks:
                   - uas-network
 
@@ -92,21 +109,11 @@ jobs:
               db_data:
             EOF
 
-            # Login ke Docker Hub di dalam EC2
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
 
-            # Pull image web-dinamis yang barusan di-build oleh GitHub Actions
             docker compose pull web-dinamis
 
-            # FIX FORBIDDEN: Buat foldernya dulu jika belum ada
-            mkdir -p web-dinamis
+            # Hapus volume DB lama supaya SQL di-seed ulang
+            docker compose down -v
 
-            # Ambil semua file source code web asli dari dalam Docker image ke folder host EC2
-            docker run --rm -v $(pwd)/web-dinamis:/target ${{ secrets.DOCKERHUB_USERNAME }}/web-dinamis-uas:latest cp -r /var/www/html/. /target/
-            
-            # Berikan akses izin penuh agar user Apache (www-data) di dalam container bisa baca filenya
-            sudo chmod -R 755 web-dinamis
-            sudo chown -R 33:33 web-dinamis
-
-            # Restart container dan jalankan dengan perubahan port baru
             docker compose up -d --remove-orphans
