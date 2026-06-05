@@ -3,7 +3,7 @@ name: Build and Deploy Dynamic App
 on:
   push:
     branches:
-      - main
+      - master # <-- SUDAH DIUBAH KE MASTER BIAR TRIGGER NYALA
     paths:
       - 'web-dinamis/**'
       - 'docker-compose.yml'
@@ -53,11 +53,14 @@ jobs:
           username: ${{ secrets.AWS_USERNAME }}
           key: ${{ secrets.AWS_PRIVATE_KEY }}
           script: |
-            # Set environment variable untuk docker-compose
+            # Mengatasi error env di beberapa setup AWS
             export DOCKERHUB_USERNAME="${{ secrets.DOCKERHUB_USERNAME }}"
             
-            # Pull image terbaru dari Docker Hub
+            # Login ke Docker Hub di sisi EC2 agar aman dari rate limit
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+            
+            # Pull image terbaru yang barusan di-build
             docker compose pull
             
-            # Jalankan ulang kontainer dengan zero-downtime (restart container yang berubah saja)
+            # Jalankan ulang service yang ada pembaruan kode secara background
             docker compose up -d --remove-orphans
