@@ -45,6 +45,7 @@ jobs:
           key: ${{ secrets.AWS_PRIVATE_KEY }}
           source: "web-dinamis/db/"
           target: "/home/${{ secrets.AWS_USERNAME }}/"
+          overwrite: true
 
       - name: Executing remote SSH commands to deploy
         uses: appleboy/ssh-action@v1.0.3
