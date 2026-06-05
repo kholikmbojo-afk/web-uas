@@ -3,7 +3,7 @@ name: Build and Deploy Dynamic App
 on:
   push:
     branches:
-      - master # <-- SUDAH DIUBAH KE MASTER BIAR TRIGGER NYALA
+      - master
     paths:
       - 'web-dinamis/**'
       - 'docker-compose.yml'
@@ -34,8 +34,18 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository for Compose file
+      # PENTING: Mengambil ulang semua file repositori ke workspace runner ini
+      - name: Checkout Repository
         uses: actions/checkout@v4
+
+      # Memastikan file docker-compose.yml benar-benar ada sebelum di-SCP
+      - name: Verify Compose File Exists
+        run: |
+          if [ -f "docker-compose.yml" ]; then
+            echo "File docker-compose.yml ditemukan!"
+          else
+            echo "ERROR: File docker-compose.yml tidak ada di root folder!" && exit 1
+          fi
 
       - name: Copy docker-compose via SCP
         uses: appleboy/scp-action@v0.1.7
@@ -43,8 +53,8 @@ jobs:
           host: ${{ secrets.AWS_HOST }}
           username: ${{ secrets.AWS_USERNAME }}
           key: ${{ secrets.AWS_PRIVATE_KEY }}
-          source: "docker-compose.yml"
-          target: "~/"
+          source: "docker-compose.yml" # Mengambil file compose dari root
+          target: "/home/${{ secrets.AWS_USERNAME }}/" # Target spesifik ke home dir user AWS
 
       - name: Executing remote SSH commands to deploy
         uses: appleboy/ssh-action@v1.0.3
@@ -53,14 +63,14 @@ jobs:
           username: ${{ secrets.AWS_USERNAME }}
           key: ${{ secrets.AWS_PRIVATE_KEY }}
           script: |
-            # Mengatasi error env di beberapa setup AWS
             export DOCKERHUB_USERNAME="${{ secrets.DOCKERHUB_USERNAME }}"
             
-            # Login ke Docker Hub di sisi EC2 agar aman dari rate limit
+            # Login Docker Hub di EC2
             echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
             
-            # Pull image terbaru yang barusan di-build
-            docker compose pull
+            # Masuk ke direktori tempat file compose berada
+            cd /home/${{ secrets.AWS_USERNAME }}
             
-            # Jalankan ulang service yang ada pembaruan kode secara background
+            # Pull & Up kontainer
+            docker compose pull
             docker compose up -d --remove-orphans
