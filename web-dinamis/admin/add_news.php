@@ -1,4 +1,3 @@
-```php
 <?php
 session_start();
 
@@ -99,4 +98,3 @@ Save News
 
 </body>
 </html>
-```

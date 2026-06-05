@@ -1,4 +1,3 @@
-```php
 <?php
 session_start();
 
@@ -189,4 +188,3 @@ tr:nth-child(even){
 
 </body>
 </html>
-```

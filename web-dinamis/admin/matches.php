@@ -1,4 +1,3 @@
-```php
 <?php
 session_start();
 
@@ -142,4 +141,3 @@ Delete
 
 </body>
 </html>
-```
