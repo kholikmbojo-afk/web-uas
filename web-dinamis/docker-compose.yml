@@ -1,37 +1,53 @@
 version: '3.8'
 
 services:
-
-  web:
-    build: .
-    container_name: worldcup-web
+  # 1. Aplikasi Web Statis (Akses langsung via Port 80)
+  web-statis:
+    image: ${DOCKERHUB_USERNAME}/web-statis-uas:latest
+    container_name: web-statis-app
     ports:
-      - "8080:80"
-    depends_on:
-      - mysql
-    environment:
-      DB_HOST: mysql
-      DB_USER: worldcup
-      DB_PASSWORD: worldcup123
-      DB_NAME: worldcup2026
-
-  mysql:
-    image: mysql:8.0
-    container_name: worldcup-db
+      - "80:80"
     restart: always
+    networks:
+      - uas-network
 
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: worldcup2026
-      MYSQL_USER: worldcup
-      MYSQL_PASSWORD: worldcup123
-
+  # 2. Aplikasi Web Dinamis (Akses via Port 3000 sesuai Security Group AWS lu)
+  web-dinamis:
+    image: ${DOCKERHUB_USERNAME}/web-dinamis-uas:latest
+    container_name: web-dinamis-app
     ports:
-      - "3306:3306"
+      - "3000:80"
+    environment:
+      - DATABASE_HOST=db-server
+      - DATABASE_USER=uas_user
+      - DATABASE_PASSWORD=uas_password
+      - DATABASE_NAME=uas_db
+    restart: always
+    depends_on:
+      - db-server
+    networks:
+      - uas-network
 
+  # 3. Database MariaDB (Tertutup dari Publik, Ter-seeding otomatis)
+  db-server:
+    image: mariadb:10.6
+    container_name: mariadb-app
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: uas_db
+      MYSQL_USER: uas_user
+      MYSQL_PASSWORD: uas_password
     volumes:
-      - mysql_data:/var/lib/mysql
-      - ./db/worldcup2026.sql:/docker-entrypoint-initdb.d/worldcup2026.sql
+      # Pastikan lu punya file dump database (misal: init.sql) di folder lokal/db untuk otomatisasi seeding
+      - ./db:/docker-entrypoint-initdb.d/
+      - db-data:/var/lib/mysql
+    networks:
+      - uas-network
+
+networks:
+  uas-network:
+    driver: bridge
 
 volumes:
-  mysql_data:
+  db-data:
