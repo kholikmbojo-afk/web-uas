@@ -1,7 +1,7 @@
 FROM php:8.1-apache
 
-# Install ekstensi pdo dan pdo_mysql untuk koneksi ke MariaDB
-RUN docker-php-ext-install pdo pdo_mysql
+# Install ekstensi pdo, pdo_mysql, dan mysqli untuk koneksi ke MariaDB
+RUN docker-php-ext-install pdo pdo_mysql mysqli
 
 # Aktifkan modul rewrite Apache jika dibutuhkan
 RUN a2enmod rewrite
