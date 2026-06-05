@@ -34,7 +34,7 @@ $news = mysqli_query(
                 <br>
 
                 <a
-                href="news_detail.php?id=<?= $row['id'] ?>"
+                href="detail_news.php?id=<?= $row['id'] ?>"
                 class="hero-btn">
                     Read More
                 </a>

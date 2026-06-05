@@ -17,7 +17,7 @@ if(!$news){
 }
 ?>
 
-<div class="container">
+<div class="container" style="padding-top:100px;">
 
     <h1>
         <?= htmlspecialchars($news['title']) ?>

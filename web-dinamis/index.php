@@ -191,7 +191,7 @@ $story = mysqli_fetch_assoc($featured);
             </p>
 
             <a
-            href="news_detail.php?id=<?= $story['id'] ?>"
+            href="detail_news.php?id=<?= $story['id'] ?>"
             class="featured-btn">
                 Read Full Story →
             </a>
