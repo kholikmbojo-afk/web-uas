@@ -1,4 +1,3 @@
-```php
 <?php
 session_start();
 include '../config/database.php';
@@ -183,4 +182,3 @@ button:hover{
 
 </body>
 </html>
-```
