@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portofolio - KHOLIK MBOJO</title>
+    <style>
+        :root {
+            --accent-orange: #f2a341;
+            --dark-green: #2d3e30;
+            --bg-cream: #f4eee0;
+            --paper-white: #ffffff;
+            --text-black: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #d1d1d1;
+            background-image: radial-gradient(#999 1px, transparent 1px);
+            background-size: 20px 20px;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .magazine-container {
+            width: 900px;
+            background-color: var(--bg-cream);
+            position: relative;
+            box-shadow: 20px 20px 0px rgba(0,0,0,0.1);
+            padding: 50px;
+            overflow: hidden;
+            border: 1px solid #999;
+        }
+
+        /* Dekit Dots & Shapes (Pengisi Area Kosong) */
+        .decoration-dots {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 150px;
+            height: 150px;
+            background-image: radial-gradient(var(--accent-orange) 2px, transparent 2px);
+            background-size: 15px 15px;
+            opacity: 0.4;
+            z-index: 0;
+        }
+
+        /* HEADER SECTION */
+        header {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 40px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .main-title {
+            background: var(--dark-green);
+            color: white;
+            padding: 20px;
+            transform: rotate(-2deg);
+            display: inline-block;
+            box-shadow: 5px 5px 0 var(--accent-orange);
+        }
+
+        .main-title h1 {
+            font-size: 3.5rem;
+            margin: 0;
+            line-height: 0.9;
+            text-transform: uppercase;
+        }
+
+        .profile-frame {
+            position: relative;
+            width: 280px;
+            height: 350px;
+            background: var(--accent-orange);
+            padding: 10px;
+            transform: rotate(3deg);
+            box-shadow: 10px 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .profile-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: grayscale(100%) contrast(120%);
+        }
+
+        /* CONTENT GRID */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.5fr;
+            gap: 50px;
+            margin-top: 60px;
+        }
+
+        .sidebar-paper {
+            background: var(--paper-white);
+            padding: 20px;
+            border: 1px solid #ccc;
+            transform: rotate(-1deg);
+            height: fit-content;
+        }
+
+        .main-paper {
+            background: var(--paper-white);
+            padding: 30px;
+            border: 1px solid #ccc;
+            transform: rotate(1deg);
+            box-shadow: 5px 5px 0px #bbb;
+        }
+
+        h2 {
+            background: var(--accent-orange);
+            color: white;
+            display: inline-block;
+            padding: 5px 15px;
+            text-transform: uppercase;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        .item {
+            margin-bottom: 20px;
+            border-bottom: 1px dashed #aaa;
+            padding-bottom: 10px;
+        }
+
+        .year {
+            font-weight: bold;
+            color: var(--accent-orange);
+        }
+
+        /* HOBBIES GRID (Pengisi Area Kosong Bawah) */
+        .hobbies-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .hobby-box {
+            border: 1px solid var(--dark-green);
+            padding: 10px;
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        footer {
+            margin-top: 50px;
+            border-top: 3px double var(--dark-green);
+            padding-top: 20px;
+            text-align: center;
+        }
+
+        .footer-mandatory {
+            font-weight: bold;
+            font-size: 1.1rem;
+            background: var(--text-black);
+            color: white;
+            padding: 10px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+<div class="magazine-container">
+    <div class="decoration-dots"></div>
+    
+    <header>
+        <div>
+            <div class="main-title">
+                <h1>PORTFOLIO<br>RESUME</h1>
+            </div>
+            <div style="margin-top: 30px;">
+                <p><strong>NAME:</strong> Abd Kholik</p>
+                <p><strong>ROLE:</strong> AWS Cloud Engineer</p>
+                <p><strong>EMAIL:</strong> Kholikmbojo@gmail.com</p>
+                <p><strong>WA:</strong> 081288583675</p>
+            </div>
+        </div>
+        <div class="profile-frame">
+            <img src="assets/profile.jpeg" alt="Abd Kholik">
+        </div>
+    </header>
+
+    <div class="content-grid">
+        <div class="sidebar-paper">
+            <h2>Education</h2>
+            <div class="item">
+                <span class="year">2022 - 2026</span>
+                <p><strong>UIN Siber Syekh Nurjati Cirebon</strong><br>Teknik Informatika</p>
+            </div>
+
+            <h2>Skills</h2>
+            <p>• AWS EC2 / S3<br>• Nginx Config<br>• Linux Bash<br>• Security Group</p>
+            
+            <h2 style="margin-top: 20px;">Hobbies</h2>
+            <div class="hobbies-grid">
+                <div class="hobby-box">CLOUD</div>
+                <div class="hobby-box">LINUX</div>
+                <div class="hobby-box">SEC</div>
+            </div>
+        </div>
+
+        <div class="main-paper">
+            <h2>Experience</h2>
+            <div class="item">
+                <div style="display: flex; justify-content: space-between;">
+                    <strong>CLOUD STUDENT</strong>
+                    <span class="year">2025</span>
+                </div>
+                <p>Fokus pada deployment high-availability server menggunakan AWS Region Singapore.</p>
+            </div>
+
+            <div class="item">
+                <div style="display: flex; justify-content: space-between;">
+                    <strong>LINUX ADMIN</strong>
+                    <span class="year">2024</span>
+                </div>
+                <p>Mengelola konfigurasi Nginx dan optimasi keamanan server[cite: 83].</p>
+            </div>
+
+            <h2>About Me</h2>
+            <p style="font-size: 0.9rem;">
+                Saya adalah mahasiswa yang berfokus pada infrastruktur cloud. Membangun server yang aman dengan akses Port 22 terbatas (My IP) adalah standar kerja saya[cite: 82].
+            </p>
+        </div>
+    </div>
+
+    <footer>
+        <p>Terima kasih telah meninjau portofolio teknis saya.</p>
+        <div class="footer-mandatory">
+            Dideploy oleh: Abd kholik - 2388010037 
+        </div>
+    </footer>
+</div>
+
+</body>
+</html>

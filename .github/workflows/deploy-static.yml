@@ -1,0 +1,46 @@
+name: Deploy Static Web
+
+on:
+  push:
+    paths:
+      - 'web-statis/**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Login DockerHub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build Image
+      run: |
+        docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/web-statis-uas:latest ./web-statis
+
+    - name: Push Image
+      run: |
+        docker push ${{ secrets.DOCKERHUB_USERNAME }}/web-statis-uas:latest
+
+    - name: Deploy AWS
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.AWS_HOST }}
+        username: ${{ secrets.AWS_USERNAME }}
+        key: ${{ secrets.AWS_PRIVATE_KEY }}
+        script: |
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/web-statis-uas:latest
+
+          docker stop web-statis || true
+          docker rm web-statis || true
+
+          docker run -d \
+          --name web-statis \
+          -p 80:80 \
+          ${{ secrets.DOCKERHUB_USERNAME }}/web-statis-uas:latest
