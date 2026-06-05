@@ -63,7 +63,7 @@ jobs:
                 image: ${{ secrets.DOCKERHUB_USERNAME }}/web-dinamis-uas:latest
                 container_name: web-dinamis-app
                 ports:
-                  - "8080:80"
+                  - "3000:80"
                 volumes:
                   - ./web-dinamis:/var/www/html
                 depends_on:
@@ -98,5 +98,5 @@ jobs:
             # Pull image web-dinamis yang barusan di-build oleh GitHub Actions
             docker compose pull web-dinamis
 
-            # Restart container yang mengalami perubahan kode saja (Zero Downtime)
+            # Restart container dan sesuaikan perubahan port baru
             docker compose up -d --remove-orphans
