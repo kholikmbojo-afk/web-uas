@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+
+  web:
+    build: .
+    container_name: worldcup-web
+    ports:
+      - "8080:80"
+    depends_on:
+      - mysql
+    environment:
+      DB_HOST: mysql
+      DB_USER: worldcup
+      DB_PASSWORD: worldcup123
+      DB_NAME: worldcup2026
+
+  mysql:
+    image: mysql:8.0
+    container_name: worldcup-db
+    restart: always
+
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: worldcup2026
+      MYSQL_USER: worldcup
+      MYSQL_PASSWORD: worldcup123
+
+    ports:
+      - "3306:3306"
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./db/worldcup2026.sql:/docker-entrypoint-initdb.d/worldcup2026.sql
+
+volumes:
+  mysql_data:
