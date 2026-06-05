@@ -98,5 +98,15 @@ jobs:
             # Pull image web-dinamis yang barusan di-build oleh GitHub Actions
             docker compose pull web-dinamis
 
-            # Restart container dan sesuaikan perubahan port baru
+            # FIX FORBIDDEN: Buat foldernya dulu jika belum ada
+            mkdir -p web-dinamis
+
+            # Ambil semua file source code web asli dari dalam Docker image ke folder host EC2
+            docker run --rm -v $(pwd)/web-dinamis:/target ${{ secrets.DOCKERHUB_USERNAME }}/web-dinamis-uas:latest cp -r /var/www/html/. /target/
+            
+            # Berikan akses izin penuh agar user Apache (www-data) di dalam container bisa baca filenya
+            sudo chmod -R 755 web-dinamis
+            sudo chown -R 33:33 web-dinamis
+
+            # Restart container dan jalankan dengan perubahan port baru
             docker compose up -d --remove-orphans
