@@ -45,7 +45,8 @@ jobs:
           key: ${{ secrets.AWS_PRIVATE_KEY }}
           script: |
             sudo rm -rf /home/${{ secrets.AWS_USERNAME }}/web-dinamis/db
-            mkdir -p /home/${{ secrets.AWS_USERNAME }}/web-dinamis/db
+            sudo mkdir -p /home/${{ secrets.AWS_USERNAME }}/web-dinamis/db
+            sudo chown -R ${{ secrets.AWS_USERNAME }}:${{ secrets.AWS_USERNAME }} /home/${{ secrets.AWS_USERNAME }}/web-dinamis
 
       - name: Copy db folder to EC2
         uses: appleboy/scp-action@v0.1.7
