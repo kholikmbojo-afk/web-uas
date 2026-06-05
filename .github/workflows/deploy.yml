@@ -34,28 +34,6 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      # PENTING: Mengambil ulang semua file repositori ke workspace runner ini
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-
-      # Memastikan file docker-compose.yml benar-benar ada sebelum di-SCP
-      - name: Verify Compose File Exists
-        run: |
-          if [ -f "docker-compose.yml" ]; then
-            echo "File docker-compose.yml ditemukan!"
-          else
-            echo "ERROR: File docker-compose.yml tidak ada di root folder!" && exit 1
-          fi
-
-      - name: Copy docker-compose via SCP
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.AWS_HOST }}
-          username: ${{ secrets.AWS_USERNAME }}
-          key: ${{ secrets.AWS_PRIVATE_KEY }}
-          source: "docker-compose.yml" # Mengambil file compose dari root
-          target: "/home/${{ secrets.AWS_USERNAME }}/" # Target spesifik ke home dir user AWS
-
       - name: Executing remote SSH commands to deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -63,14 +41,62 @@ jobs:
           username: ${{ secrets.AWS_USERNAME }}
           key: ${{ secrets.AWS_PRIVATE_KEY }}
           script: |
-            export DOCKERHUB_USERNAME="${{ secrets.DOCKERHUB_USERNAME }}"
-            
-            # Login Docker Hub di EC2
-            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
-            
-            # Masuk ke direktori tempat file compose berada
+            # Pindah ke home direktori AWS
             cd /home/${{ secrets.AWS_USERNAME }}
-            
-            # Pull & Up kontainer
-            docker compose pull
+
+            # Trik jitu: Hapus file lama dan tulis ulang docker-compose.yml langsung di server
+            rm -f docker-compose.yml
+
+            cat << 'EOF' > docker-compose.yml
+            version: '3.8'
+
+            services:
+              web-statis:
+                image: ${{ secrets.DOCKERHUB_USERNAME }}/web-statis-uas:latest
+                container_name: web-statis-app
+                ports:
+                  - "80:80"
+                networks:
+                  - uas-network
+
+              web-dinamis:
+                image: ${{ secrets.DOCKERHUB_USERNAME }}/web-dinamis-uas:latest
+                container_name: web-dinamis-app
+                ports:
+                  - "8080:80"
+                volumes:
+                  - ./web-dinamis:/var/www/html
+                depends_on:
+                  - db-server
+                networks:
+                  - uas-network
+
+              db-server:
+                image: mariadb:10.6
+                container_name: mariadb-app
+                environment:
+                  MYSQL_ROOT_PASSWORD: uas_root_password
+                  MYSQL_DATABASE: uas_db
+                  MYSQL_USER: uas_user
+                  MYSQL_PASSWORD: uas_password
+                volumes:
+                  - db_data:/var/lib/mysql
+                networks:
+                  - uas-network
+
+            networks:
+              uas-network:
+                driver: bridge
+
+            volumes:
+              db_data:
+            EOF
+
+            # Login ke Docker Hub di dalam EC2
+            echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+            # Pull image web-dinamis yang barusan di-build oleh GitHub Actions
+            docker compose pull web-dinamis
+
+            # Restart container yang mengalami perubahan kode saja (Zero Downtime)
             docker compose up -d --remove-orphans
