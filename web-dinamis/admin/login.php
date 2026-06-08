@@ -145,7 +145,7 @@ button:hover{
     <h1>WORLD CUP 2026</h1>
 
     <p class="subtitle">
-        Admin Control Panel
+        Please login
     </p>
 
     <?php if($error != ""): ?>
